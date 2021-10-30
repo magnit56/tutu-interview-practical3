@@ -5,7 +5,7 @@ file_put_contents('file.txt', '$data: ' . print_r($data, 1) . '\n', FILE_APPEND)
 
 $data = $data['callback_query'] ? $data['callback_query'] : $data['message'];
 
-define('TOKEN', 'mytoken');
+define('TOKEN', '2056422928:AAFENBxYSL7_zFUXAoBFF4p6WBdAItoOFSc');
 
 $message = mb_strtolower(($data['text'] ? $data['text'] : $data['data']), 'utf-8');
 
