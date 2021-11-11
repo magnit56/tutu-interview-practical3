@@ -1,0 +1,33 @@
+{
+    "name": "magnit56/tutu-interview-practical3",
+    "autoload": {
+        "psr-4": {
+            "Magnit56\\TutuInterviewPractical3\\": [
+                "src/",
+                "tests/",
+                "index.php"
+            ]
+        },
+        "files": [
+            "src/getCountryData.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Samat Tulegenov",
+            "email": "magnit56@gmail.com"
+        }
+    ],
+    "scripts": {
+        "phpunit": "phpunit"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {
+        "spatie/emoji": "^3.0",
+        "sokil/php-isocodes": "^3.3",
+        "tightenco/collect": "^8.34",
+        "eleirbag89/telegrambotphp": "^1.3"
+    }
+}

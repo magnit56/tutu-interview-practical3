@@ -1,85 +1,46 @@
 <?php
 
-$data = json_encode(file_get_contents('php://input'), TRUE);
-file_put_contents('file.txt', '$data: ' . print_r($data, 1) . '\n', FILE_APPEND);
+namespace Magnit56\TutuInterviewPractical3;
 
-$data = $data['callback_query'] ? $data['callback_query'] : $data['message'];
+use Telegram;
 
-define('TOKEN', '2056422928:AAFENBxYSL7_zFUXAoBFF4p6WBdAItoOFSc');
+require_once './vendor/autoload.php';
 
-$message = mb_strtolower(($data['text'] ? $data['text'] : $data['data']), 'utf-8');
+$bot_token = '2056422928:AAFENBxYSL7_zFUXAoBFF4p6WBdAItoOFSc';
+$telegram = new Telegram($bot_token);
+$text = $telegram->Text();
+$chat_id = $telegram->ChatID();
+$data = $telegram->getData();
+$callback_query = $telegram->Callback_Query();
 
-switch ($message)
-{
-    case 'текст':
-        $method = 'sendMessage';
-        $send_data = [
-            'text' => 'Вот мой ответ',
-        ];
-        break;
-    case 'кнопки':
-        $method = 'sendMessage';
-        $send_data = [
-            'text' => 'Вот мои кнопки',
-            'reply_markup' => [
-                'resize_keyboard' => true,
-                'keyboard' => [
-                    [
-                        ['text' => 'Кнопка 1'],
-                        ['text' => 'Кнопка 2'],
-                    ],
-                    [
-                        ['text' => 'Кнопка 3'],
-                        ['text' => 'Кнопка 4'],
-                    ],
-                ],
-            ]
-        ];
-        break;
-    case 'видео':
-        $method = 'sendVideo';
-        $send_data = [
-            'video' => 'https://chastoedov.ru/video/amo.mp4',
-            'caption' => 'Вот мое видео',
-            'reply_markup' => [
-                'resize_keyboard' => true,
-                'keyboard' => [
-                    [
-                        ['text' => 'Кнопка 1'],
-                        ['text' => 'Кнопка 2'],
-                    ],
-                    [
-                        ['text' => 'Кнопка 3'],
-                        ['text' => 'Кнопка 4'],
-                    ],
-                ],
-            ],
-        ];
-        break;
-    default:
-        $send_data = [
-            'method' => 'sendMessage',
-            'text' => 'Не понимаю о чем вы :(',
-        ];
+if (isset($_GET['user_id']) && isset($_GET['inline']) && isset($_GET['score'])) {
+    $content = ['user_id' => $_GET['user_id'], 'inline_message_id' => $_GET['inline'], 'score' => $_GET['score'], 'force' => 'false'];
+    $reply = $telegram->setGameScore($content);
+    echo $reply;
+
+    return;
 }
 
-$send_data['chat_id'] = $data['chat']['id'];
+if ($data['inline_query'] !== null && $data['inline_query'] != '') {
+    $query = $data['inline_query']['query'];
 
-$res = sendTelegram($method, $send_data);
+    if (strpos('gamename', $query) !== false) {
+        $results = json_encode([['type' => 'game', 'id'=> '1', 'game_short_name' => 'game_short']]);
+        $content = ['inline_query_id' => $data['inline_query']['id'], 'results' => $results];
+        $reply = $telegram->answerInlineQuery($content);
+    }
+}
 
-function sendTelegram($method, $data, $headers = [])
-{
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_POST => 1,
-        CURLOPT_HEADER => 0,
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://api.telegram.org/bot' . TOKEN . '/' . $method,
-        CURLOPT_POSTFIELDS => json_encode($data),
-        CURLOPT_HTTPHEADER => array_merge(array('Content-Type: application/json'), $headers),
-    ]);
+if ($callback_query !== null && $callback_query != '') {
+    $game_name = $data['callback_query']['game_short_name'];
+    $user_id = $data['callback_query']['from']['id'];
+    $inline_id = $data['callback_query']['inline_message_id'];
 
-    $result = curl_exec($curl);
-    curl_close($curl);
-    return (json_decode($result, 1) ? json_decode($result, 1) : $result);
+    $content = ['callback_query_id' => $telegram->Callback_ID(), 'url' => 'http://domain.com/gamefolder/?user_id='.$user_id.'&inline='.$inline_id];
+    $telegram->answerCallbackQuery($content);
+}
+
+if ($text == '/start') {
+    $content = ['chat_id' => $chat_id, 'text' => 'Welcome to Test GameBot !'];
+    $telegram->sendMessage($content);
 }
